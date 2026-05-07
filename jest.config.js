@@ -8,5 +8,9 @@ module.exports = {
     '/node_modules/(?!(@actions|@octokit|universal-user-agent|before-after-hook)/)',
   ],
   resolver: './jest-resolver.js',
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@actions|@octokit|universal-user-agent|before-after-hook)/)',
+  ],
+  resolver: './jest-resolver.js',
   reporters: [['github-actions', {silent: false}], 'summary']
 }
