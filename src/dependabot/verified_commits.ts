@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { GitHub } from '@actions/github/lib/utils'
-import { Context } from '@actions/github/lib/context'
+import type { Context } from './github-context'
 import type { dependencyAlert } from './update_metadata'
 import https from 'https'
 
@@ -79,7 +79,7 @@ export async function getAlert (name: string, version: string, directory: string
      }`)
 
   const nodes = alerts?.repository?.vulnerabilityAlerts?.nodes
-  const found = nodes.find(a => (version === '' || a.vulnerableRequirements === `= ${version}`) &&
+  const found = nodes.find((a: any) => (version === '' || a.vulnerableRequirements === `= ${version}`) &&
       trimSlashes(a.vulnerableManifestPath) === trimSlashes(`${directory}/${a.vulnerableManifestFilename}`) &&
       a.securityVulnerability.package.name === name)
 
