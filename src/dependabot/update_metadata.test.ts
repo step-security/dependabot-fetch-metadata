@@ -559,6 +559,32 @@ updated-dependencies:
   expect(updatedDependencies[1].newVersion).toEqual('1.27.1')
 })
 
+test('it handles pip requirement updates with directory suffix', async () => {
+  const commitMessage =
+    'Update boto3 requirement from <=1.42.76 to <=1.42.86 in /app\n' +
+    '\n' +
+    'Updates the requirements on [boto3](https://github.com/boto/boto3) to permit the latest version.\n' +
+    '\n' +
+    '---\n' +
+    'updated-dependencies:\n' +
+    '- dependency-name: boto3\n' +
+    '  dependency-version: 1.42.86\n' +
+    '  dependency-type: direct:production\n' +
+    '...\n' +
+    '\n' +
+    'Signed-off-by: dependabot[bot] <support@github.com>'
+  const updatedDependencies = await updateMetadata.parse(commitMessage, '', 'dependabot/pip/app/boto3-1.42.86', 'main')
+
+  expect(updatedDependencies).toHaveLength(1)
+  expect(updatedDependencies[0].dependencyName).toEqual('boto3')
+  expect(updatedDependencies[0].dependencyType).toEqual('direct:production')
+  expect(updatedDependencies[0].updateType).toEqual('version-update:semver-patch')
+  expect(updatedDependencies[0].directory).toEqual('/app')
+  expect(updatedDependencies[0].packageEcosystem).toEqual('pip')
+  expect(updatedDependencies[0].prevVersion).toEqual('1.42.76')
+  expect(updatedDependencies[0].newVersion).toEqual('1.42.86')
+})
+
 test('it handles duplicate dependency names in metadata links without mixing versions', async () => {
   const commitMessage =
     'Bumps the production group with 2 updates\n' +
@@ -577,7 +603,6 @@ test('it handles duplicate dependency names in metadata links without mixing ver
     '...\n' +
     '\n' +
     'Signed-off-by: dependabot[bot] <support@github.com>'
-
   const updatedDependencies = await updateMetadata.parse(commitMessage, '', 'dependabot/npm_and_yarn/production-abc123', 'main')
 
   expect(updatedDependencies).toHaveLength(2)
