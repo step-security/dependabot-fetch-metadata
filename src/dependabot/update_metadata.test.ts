@@ -558,3 +558,37 @@ updated-dependencies:
   expect(updatedDependencies[1].prevVersion).toEqual('')
   expect(updatedDependencies[1].newVersion).toEqual('1.27.1')
 })
+
+test('it handles duplicate dependency names in metadata links without mixing versions', async () => {
+  const commitMessage =
+    'Bumps the production group with 2 updates\n' +
+    '\n' +
+    'Bumps the production group with 2 updates:\n' +
+    '\n' +
+    'Updates `picomatch` from 2.3.1 to 2.3.2\n' +
+    'Updates `picomatch` from 4.0.1 to 4.0.2\n' +
+    '\n' +
+    '---\n' +
+    'updated-dependencies:\n' +
+    '- dependency-name: picomatch\n' +
+    '  dependency-type: direct:production\n' +
+    '- dependency-name: picomatch\n' +
+    '  dependency-type: indirect\n' +
+    '...\n' +
+    '\n' +
+    'Signed-off-by: dependabot[bot] <support@github.com>'
+
+  const updatedDependencies = await updateMetadata.parse(commitMessage, '', 'dependabot/npm_and_yarn/production-abc123', 'main')
+
+  expect(updatedDependencies).toHaveLength(2)
+
+  expect(updatedDependencies[0].dependencyName).toEqual('picomatch')
+  expect(updatedDependencies[0].prevVersion).toEqual('2.3.1')
+  expect(updatedDependencies[0].newVersion).toEqual('2.3.2')
+  expect(updatedDependencies[0].updateType).toEqual('version-update:semver-patch')
+
+  expect(updatedDependencies[1].dependencyName).toEqual('picomatch')
+  expect(updatedDependencies[1].prevVersion).toEqual('4.0.1')
+  expect(updatedDependencies[1].newVersion).toEqual('4.0.2')
+  expect(updatedDependencies[1].updateType).toEqual('version-update:semver-patch')
+})
