@@ -26354,14 +26354,14 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs3 = this.flowScalar(this.type);
+              const fs4 = this.flowScalar(this.type);
               if (atNextItem || it.value) {
-                map.items.push({ start, key: fs3, sep: [] });
+                map.items.push({ start, key: fs4, sep: [] });
                 this.onKeyLine = true;
               } else if (it.sep) {
-                this.stack.push(fs3);
+                this.stack.push(fs4);
               } else {
-                Object.assign(it, { key: fs3, sep: [] });
+                Object.assign(it, { key: fs4, sep: [] });
                 this.onKeyLine = true;
               }
               return;
@@ -26489,13 +26489,13 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs3 = this.flowScalar(this.type);
+              const fs4 = this.flowScalar(this.type);
               if (!it || it.value)
-                fc.items.push({ start: [], key: fs3, sep: [] });
+                fc.items.push({ start: [], key: fs4, sep: [] });
               else if (it.sep)
-                this.stack.push(fs3);
+                this.stack.push(fs4);
               else
-                Object.assign(it, { key: fs3, sep: [] });
+                Object.assign(it, { key: fs4, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -37114,7 +37114,7 @@ var require_form_data = __commonJS({
     var http3 = require("http");
     var https3 = require("https");
     var parseUrl3 = require("url").parse;
-    var fs3 = require("fs");
+    var fs4 = require("fs");
     var Stream = require("stream").Stream;
     var crypto3 = require("crypto");
     var mime = require_mime_types();
@@ -37181,7 +37181,7 @@ var require_form_data = __commonJS({
         if (value.end != void 0 && value.end != Infinity && value.start != void 0) {
           callback(null, value.end + 1 - (value.start ? value.start : 0));
         } else {
-          fs3.stat(value.path, function(err, stat2) {
+          fs4.stat(value.path, function(err, stat2) {
             if (err) {
               callback(err);
               return;
@@ -43258,6 +43258,9 @@ function getBody(context3) {
   return pr?.body || "";
 }
 
+// src/main.ts
+var fs3 = __toESM(require("fs"));
+
 // node_modules/axios/lib/helpers/bind.js
 function bind2(fn, thisArg) {
   return function wrap() {
@@ -47686,16 +47689,43 @@ var {
 
 // src/main.ts
 async function validateSubscription() {
-  const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`;
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  let repoPrivate;
+  if (eventPath && fs3.existsSync(eventPath)) {
+    const eventData = JSON.parse(fs3.readFileSync(eventPath, "utf8"));
+    repoPrivate = eventData?.repository?.private;
+  }
+  const upstream = "dependabot/fetch-metadata";
+  const action = process.env.GITHUB_ACTION_REPOSITORY;
+  const docsUrl = "https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions";
+  info("");
+  info("\x1B[1;36mStepSecurity Maintained Action\x1B[0m");
+  info(`Secure drop-in replacement for ${upstream}`);
+  if (repoPrivate === false)
+    info("\x1B[32m\u2713 Free for public repositories\x1B[0m");
+  info(`\x1B[36mLearn more:\x1B[0m ${docsUrl}`);
+  info("");
+  if (repoPrivate === false) return;
+  const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+  const body = { action: action || "" };
+  if (serverUrl !== "https://github.com") body.ghes_server = serverUrl;
   try {
-    await axios_default.get(API_URL, { timeout: 3e3 });
+    await axios_default.post(
+      `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`,
+      body,
+      { timeout: 3e3 }
+    );
   } catch (error2) {
     if (isAxiosError2(error2) && error2.response?.status === 403) {
-      error("Subscription is not valid. Reach out to support@stepsecurity.io");
+      error(
+        `\x1B[1;31mThis action requires a StepSecurity subscription for private repositories.\x1B[0m`
+      );
+      error(
+        `\x1B[31mLearn how to enable a subscription: ${docsUrl}\x1B[0m`
+      );
       process.exit(1);
-    } else {
-      info("Timeout or API not reachable. Continuing to next step.");
     }
+    info("Timeout or API not reachable. Continuing to next step.");
   }
 }
 async function run() {
