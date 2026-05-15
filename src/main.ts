@@ -42,6 +42,7 @@ export async function run (): Promise<void> {
     const commitMessage = await verifiedCommits.getMessage(githubClient, github.context, core.getBooleanInput('skip-commit-verification'), core.getBooleanInput('skip-verification'))
     const branchNames = util.getBranchNames(github.context)
     const body = util.getBody(github.context)
+    const title = util.getTitle(github.context)
     let alertLookup: updateMetadata.alertLookup | undefined
     if (core.getInput('alert-lookup')) {
       alertLookup = (name, version, directory) => verifiedCommits.getAlert(name, version, directory, githubClient, github.context)
@@ -52,7 +53,7 @@ export async function run (): Promise<void> {
       // Parse metadata
       core.info('Parsing Dependabot metadata')
 
-      const updatedDependencies = await updateMetadata.parse(commitMessage, body, branchNames.headName, branchNames.baseName, alertLookup, scoreLookup)
+      const updatedDependencies = await updateMetadata.parse(commitMessage, body, branchNames.headName, branchNames.baseName, alertLookup, scoreLookup, title)
 
       if (updatedDependencies.length > 0) {
         output.set(updatedDependencies)
