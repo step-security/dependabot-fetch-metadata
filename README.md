@@ -216,7 +216,7 @@ jobs:
 
       - name: Dependabot metadata
         id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v2
+        uses: step-security/dependabot-fetch-metadata@v2
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           alert-lookup: true
