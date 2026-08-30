@@ -1,0 +1,18 @@
+{
+   "schema_version": "1",
+   "onboarding_type": "copied",
+   "archived": false,
+   "maintained_action_name": "step-security/dependabot-fetch-metadata",
+   "upstream_full_repo_name": "dependabot/fetch-metadata",
+   "action_type": "node",
+   "last_release": {
+     "tag_name": "v3.1.0",
+     "created_at": "2026-05-15T11:36:19Z",
+     "published_at": "2026-05-18T16:31:15Z"
+   },
+   "sync": {
+     "ignore_presets": [
+       "defaults_v1"
+     ]
+   }
+ }
